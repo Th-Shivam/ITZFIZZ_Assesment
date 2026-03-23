@@ -11,58 +11,55 @@ const welcomeLetters = Array.from('WELCOME ITZFIZZ')
 const statCards = [
   {
     id: 'box1',
-    value: '12ms',
-    label: 'Smooth Response',
-    className:
-      'left-4 top-[15%] w-[136px] sm:left-[6%] sm:top-[14%] sm:w-[158px] lg:left-[8%] lg:top-[16%]',
+    value: '3.2x ROI',
+    label: 'Average Campaign Return',
+    className: 'w-[170px] sm:w-[198px]',
     shell:
       'bg-[linear-gradient(135deg,rgba(151,242,207,0.94),rgba(124,230,196,0.72))] text-[#0a1913]',
     labelClass: 'text-[#19352b]',
   },
   {
     id: 'box2',
-    value: '99%',
-    label: 'Performance Score',
-    className:
-      'right-4 top-[13%] w-[144px] sm:right-[6%] sm:top-[12%] sm:w-[166px] lg:right-[8%] lg:top-[14%]',
+    value: '68% ↑',
+    label: 'Lead Conversion Growth',
+    className: 'w-[180px] sm:w-[208px]',
     shell:
       'bg-[linear-gradient(135deg,rgba(204,232,255,0.94),rgba(154,208,255,0.72))] text-[#091521]',
     labelClass: 'text-[#213f5a]',
   },
   {
     id: 'box3',
-    value: '240+',
-    label: 'Frames Tuned',
-    className:
-      'right-5 bottom-[17%] w-[150px] sm:right-[10%] sm:bottom-[14%] sm:w-[172px] lg:right-[13%] lg:bottom-[16%]',
+    value: '45% ↓',
+    label: 'Customer Acquisition Cost',
+    className: 'w-[188px] sm:w-[216px]',
     shell:
       'bg-[linear-gradient(135deg,rgba(205,191,255,0.94),rgba(177,154,255,0.72))] text-[#150f29]',
     labelClass: 'text-[#463a70]',
   },
   {
     id: 'box4',
-    value: '40%',
-    label: 'Decreased In Customer Phone Calls',
-    className:
-      'left-4 bottom-[18%] w-[192px] sm:left-[7%] sm:bottom-[15%] sm:w-[220px] lg:left-[10%] lg:bottom-[16%] lg:w-[248px]',
+    value: '120K+',
+    label: 'Leads Generated Monthly',
+    className: 'w-[240px] sm:w-[275px] lg:w-[310px]',
     shell:
       'bg-[linear-gradient(135deg,rgba(255,199,155,0.96),rgba(255,171,114,0.74))] text-[#231209]',
     labelClass: 'text-[#68422b]',
   },
 ]
 
-function StatCard({ id, value, label, className, shell, labelClass }) {
+function StatCard({ id, value, label, className, shell, labelClass, innerRef }) {
   return (
     <div
       id={id}
-      className={`stat-card absolute z-40 rounded-[24px] border border-white/18 px-4 py-3 opacity-100 shadow-[0_28px_80px_rgba(0,0,0,0.16)] backdrop-blur-xl will-change-transform sm:px-5 sm:py-4 ${className} ${shell}`}
+      ref={innerRef}
+      className={`stat-card absolute z-40 rounded-[24px] border border-white/18 px-5 py-4 opacity-100 shadow-[0_28px_80px_rgba(0,0,0,0.16)] backdrop-blur-xl will-change-transform sm:px-6 sm:py-5 ${className} ${shell}`}
     >
       <div className="stat-float">
-        <div className="text-[1.75rem] font-semibold leading-none tracking-[-0.05em] sm:text-[2.05rem]">
+        <div className="text-[2.15rem] font-semibold leading-none tracking-[-0.05em] sm:text-[2.55rem]">
           {value}
         </div>
         <div
-          className={`mt-2 text-[10px] font-medium uppercase tracking-[0.22em] sm:text-[11px] ${labelClass}`}
+          className={`mt-2 text-[11px] font-medium uppercase tracking-[0.22em] sm:text-xs ${labelClass}`}
         >
           {label}
         </div>
@@ -78,6 +75,7 @@ function App() {
   const carGlowRef = useRef(null)
   const trailRef = useRef(null)
   const letterRefs = useRef([])
+  const cardRefs = useRef([])
 
   useGSAP(
     () => {
@@ -93,11 +91,42 @@ function App() {
       let letterCenters = []
       const trailOrigin = parseFloat(trail.dataset.start || '0')
       const setTrailWidth = gsap.quickSetter(trail, 'width', 'px')
+      const travelFractions = [0.25, 0.5, 0.75, 1]
 
       const measureLetters = () => {
         letterCenters = letterRefs.current.map((letter) =>
           letter ? letter.offsetLeft + letter.offsetWidth / 2 : 0,
         )
+      }
+
+      const positionCards = () => {
+        const stageWidth = stage.offsetWidth
+        const stageHeight = stage.offsetHeight
+        const roadHeight = Math.max(stageHeight * 0.22, 160)
+        const roadTop = (stageHeight - roadHeight) / 2
+        const topY = roadTop - 40
+        const bottomY = roadTop + roadHeight + 40
+        const travel = stageWidth - car.offsetWidth + 36
+        const startCenter = car.offsetLeft + car.offsetWidth / 2
+
+        cardRefs.current.forEach((cardElement, index) => {
+          if (!cardElement) {
+            return
+          }
+
+          const milestone = startCenter + travel * travelFractions[index]
+          const cardLeft = gsap.utils.clamp(
+            24,
+            stageWidth - cardElement.offsetWidth - 24,
+            milestone - cardElement.offsetWidth / 2,
+          )
+          const cardTop = index % 2 === 0 ? topY - cardElement.offsetHeight : bottomY
+
+          gsap.set(cardElement, {
+            left: cardLeft,
+            top: cardTop,
+          })
+        })
       }
 
       const updateReveal = () => {
@@ -122,6 +151,7 @@ function App() {
       }
 
       measureLetters()
+      positionCards()
 
       gsap.set([car, carGlow], {
         x: 0,
@@ -192,6 +222,7 @@ function App() {
         invalidateOnRefresh: true,
         onRefresh: () => {
           measureLetters()
+          positionCards()
           updateReveal()
         },
       })
@@ -210,6 +241,7 @@ function App() {
           invalidateOnRefresh: true,
           onRefresh: () => {
             measureLetters()
+            positionCards()
             updateReveal()
           },
           onUpdate: updateReveal,
@@ -276,7 +308,14 @@ function App() {
 
           <div className="pointer-events-none absolute inset-0 z-30">
             {statCards.map((card) => (
-              <StatCard key={card.id} {...card} />
+              <StatCard
+                key={card.id}
+                {...card}
+                innerRef={(element) => {
+                  cardRefs.current[statCards.findIndex((item) => item.id === card.id)] =
+                    element
+                }}
+              />
             ))}
           </div>
 
