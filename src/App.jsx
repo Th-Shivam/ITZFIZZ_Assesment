@@ -75,6 +75,30 @@ function App() {
           onUpdate: updateRevealState,
         },
       })
+
+      ;[
+        { selector: '#box1', start: 'top+=400 top', y: -24 },
+        { selector: '#box2', start: 'top+=650 top', y: 24 },
+        { selector: '#box3', start: 'top+=900 top', y: -24 },
+        { selector: '#box4', start: 'top+=1150 top', y: 24 },
+      ].forEach(({ selector, start, y }) => {
+        gsap.fromTo(
+          selector,
+          { autoAlpha: 0, y },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start,
+              end: start,
+              toggleActions: 'play none none reverse',
+            },
+          },
+        )
+      })
     },
     { scope: sectionRef },
   )
@@ -86,7 +110,7 @@ function App() {
           <div className="relative h-[360px] w-screen overflow-hidden">
             <div
               id="box1"
-              className="absolute right-[8%] top-0 z-40 flex w-44 flex-col gap-2 rounded-3xl bg-cyan-300/90 px-5 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(34,211,238,0.24)] backdrop-blur"
+              className="absolute right-4 top-0 z-40 flex w-36 flex-col gap-2 rounded-3xl bg-cyan-300/90 px-4 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(34,211,238,0.24)] backdrop-blur sm:right-[6%] sm:w-40 sm:px-5 md:right-[8%] md:w-44"
             >
               <span className="text-3xl font-semibold leading-none text-slate-950">
                 99%
@@ -98,7 +122,7 @@ function App() {
 
             <div
               id="box2"
-              className="absolute bottom-2 right-[14%] z-40 flex w-48 flex-col gap-2 rounded-3xl bg-violet-300/85 px-5 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(167,139,250,0.22)] backdrop-blur"
+              className="absolute bottom-3 right-6 z-40 flex w-40 flex-col gap-2 rounded-3xl bg-violet-300/85 px-4 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(167,139,250,0.22)] backdrop-blur sm:right-[10%] sm:w-44 sm:px-5 md:right-[14%] md:w-48"
             >
               <span className="text-3xl font-semibold leading-none text-slate-950">
                 240+
@@ -110,7 +134,7 @@ function App() {
 
             <div
               id="box3"
-              className="absolute left-[8%] top-3 z-40 flex w-44 flex-col gap-2 rounded-3xl bg-emerald-300/90 px-5 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(74,222,128,0.22)] backdrop-blur"
+              className="absolute left-4 top-3 z-40 flex w-36 flex-col gap-2 rounded-3xl bg-emerald-300/90 px-4 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(74,222,128,0.22)] backdrop-blur sm:left-[6%] sm:w-40 sm:px-5 md:left-[8%] md:w-44"
             >
               <span className="text-3xl font-semibold leading-none text-slate-950">
                 12ms
@@ -122,7 +146,7 @@ function App() {
 
             <div
               id="box4"
-              className="absolute bottom-0 left-[16%] z-40 flex w-48 flex-col gap-2 rounded-3xl bg-amber-200/90 px-5 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(251,191,36,0.18)] backdrop-blur"
+              className="absolute bottom-0 left-8 z-40 flex w-40 flex-col gap-2 rounded-3xl bg-amber-200/90 px-4 py-4 text-left opacity-0 shadow-[0_24px_80px_rgba(251,191,36,0.18)] backdrop-blur sm:left-[12%] sm:w-44 sm:px-5 md:left-[16%] md:w-48"
             >
               <span className="text-3xl font-semibold leading-none text-slate-950">
                 4.9/5
