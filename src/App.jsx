@@ -1,12 +1,88 @@
+import { useRef } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import carImage from './assets/McLaren 720S 2022 top view.png'
+
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 const welcomeLetters = Array.from('WELCOME ITZFIZZ')
 
 function App() {
+  const sectionRef = useRef(null)
+  const trackRef = useRef(null)
+  const roadRef = useRef(null)
+  const carRef = useRef(null)
+  const trailRef = useRef(null)
+  const letterRefs = useRef([])
+
+  useGSAP(
+    () => {
+      const updateRevealState = () => {
+        const road = roadRef.current
+        const car = carRef.current
+        const trail = trailRef.current
+
+        if (!road || !car || !trail) {
+          return
+        }
+
+        const carX = gsap.getProperty(car, 'x')
+        const carCenter = Number(carX) + car.offsetLeft + car.offsetWidth / 2
+
+        gsap.set(trail, {
+          width: carCenter,
+        })
+
+        letterRefs.current.forEach((letter) => {
+          if (!letter) {
+            return
+          }
+
+          const letterOffset = letter.offsetLeft + letter.offsetWidth / 2
+          letter.style.opacity = carCenter >= letterOffset ? '1' : '0'
+        })
+      }
+
+      const road = roadRef.current
+      const car = carRef.current
+
+      if (!road || !car) {
+        return
+      }
+
+      gsap.set(car, { x: 0 })
+      gsap.set(trailRef.current, { width: car.offsetWidth / 2 })
+      updateRevealState()
+
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: 'bottom bottom',
+        pin: trackRef.current,
+        pinSpacing: false,
+      })
+
+      gsap.to(car, {
+        x: () => road.offsetWidth - car.offsetWidth,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true,
+          invalidateOnRefresh: true,
+          onUpdate: updateRevealState,
+        },
+      })
+    },
+    { scope: sectionRef },
+  )
+
   return (
     <main className="bg-neutral-950">
-      <section className="h-[200vh]">
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+      <section ref={sectionRef} className="h-[200vh]">
+        <div ref={trackRef} className="flex h-screen items-center overflow-hidden">
           <div className="relative h-[360px] w-screen overflow-hidden">
             <div
               id="box1"
@@ -56,25 +132,35 @@ function App() {
               </span>
             </div>
 
-            <div className="absolute inset-x-0 top-1/2 h-[200px] -translate-y-1/2 overflow-hidden bg-neutral-800">
-            <div className="absolute inset-0 z-10 flex items-center justify-center gap-3 px-10 sm:gap-4 md:gap-5">
-              {welcomeLetters.map((letter, index) => (
-                <span
-                  key={`${letter}-${index}`}
-                  className="value-letter opacity-0 text-xl font-semibold uppercase tracking-[0.45em] text-white sm:text-3xl lg:text-5xl"
-                >
-                  {letter === ' ' ? '\u00A0' : letter}
-                </span>
-              ))}
-            </div>
+            <div
+              ref={roadRef}
+              className="absolute inset-x-0 top-1/2 h-[200px] -translate-y-1/2 overflow-hidden bg-neutral-800"
+            >
+              <div className="absolute inset-0 z-10 flex items-center justify-center gap-3 px-10 sm:gap-4 md:gap-5">
+                {welcomeLetters.map((letter, index) => (
+                  <span
+                    key={`${letter}-${index}`}
+                    ref={(element) => {
+                      letterRefs.current[index] = element
+                    }}
+                    className="value-letter opacity-0 text-xl font-semibold uppercase tracking-[0.45em] text-white sm:text-3xl lg:text-5xl"
+                  >
+                    {letter === ' ' ? '\u00A0' : letter}
+                  </span>
+                ))}
+              </div>
 
-            <div className="absolute left-12 top-1/2 z-20 h-16 w-44 -translate-y-1/2 rounded-full bg-emerald-400/45 blur-2xl sm:h-20 sm:w-56" />
+              <div
+                ref={trailRef}
+                className="absolute left-0 top-1/2 z-20 h-16 -translate-y-1/2 rounded-full bg-emerald-400/45 blur-2xl sm:h-20"
+              />
 
-            <img
-              src={carImage}
-              alt="McLaren 720S top view"
-              className="absolute left-0 top-1/2 z-30 w-48 -translate-y-1/2 object-contain sm:w-64 lg:w-72"
-            />
+              <img
+                ref={carRef}
+                src={carImage}
+                alt="McLaren 720S top view"
+                className="absolute left-0 top-1/2 z-30 w-48 -translate-y-1/2 object-contain sm:w-64 lg:w-72"
+              />
             </div>
           </div>
         </div>
